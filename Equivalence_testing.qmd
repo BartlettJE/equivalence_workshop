@@ -44,7 +44,7 @@ library(pwr)
 
 -   We can calculate the probability of data given a hypothesis
 
-## Null Hypothesis Significant Testing
+## Null Hypothesis Significance Testing
 
 -   This is where *p*-values come in: We can calculate the probability of observing data (or more extreme), assuming the null hypothesis is true
 

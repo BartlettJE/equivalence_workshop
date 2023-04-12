@@ -2,7 +2,7 @@
 
 Workshop for the Learning and Teaching Conference 2023 at the University of Glasgow. 
 
-In this talk, I provide an overview of equivalence testing using R. There are two worked examples to demonstrate the limitations of traditional Null Hypothesis Significance Testing (Bem, 2011) and applying equivalence testing and the decisions that go into it (Ditta & Woodward, 2022). 
+In this talk, I provide an overview of equivalence testing using R. There are two worked examples where I use open data to demonstrate the limitations of traditional Null Hypothesis Significance Testing (Bem, 2011) and applying equivalence testing and the decisions that go into it (Ditta & Woodward, 2022).
 
 # Using the files
 
