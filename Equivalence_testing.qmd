@@ -1,0 +1,551 @@
+---
+title: "Make null results great again: A tutorial of equivalence testing"
+author: "Dr James Bartlett and Dr Sarah Charles"
+format: 
+  revealjs:
+      embed-resources: true
+editor: visual
+---
+
+## Overview
+
+```{r packages and data, warning=FALSE, message=FALSE}
+# Wrangling 
+library(tidyverse)
+# Read Excel files 
+library(readxl)
+# Function for cleaning variable names up 
+library(janitor)
+# Equivalence testing 
+library(TOSTER)
+# Join different plots
+library(patchwork)
+# Power functions
+library(pwr)
+```
+
+-   Crash course in frequentist statistical inference
+
+-   How do researchers often try and test the null? 
+
+-   Equivalence testing tutorial
+
+-   Target data sets:
+
+    * *Feeling the Future* ([Bem, 2011](https://pubmed.ncbi.nlm.nih.gov/21280961/))
+
+    * *Statistical Reasoning After Being Taught With R Programming Versus Hand Calculations* ([Ditta & Woodward, 2022](https://psycnet.apa.org/record/2022-75571-001))
+
+## Crash course in frequentist statistics
+
+-   Approach to statistical inference behind commonly used *p*-values
+
+-   "Objective" theory where probabilities exist in the world, they are there to be discovered independent from the observer
+
+-   Probability cannot be assigned to individual events, only a collective
+
+-   We can calculate the probability of data given a hypothesis
+
+## Null Hypothesis Significant Testing
+
+-   This is where *p*-values come in: We can calculate the probability of observing data (or more extreme), assuming the null hypothesis is true
+
+-   See it as a measure of surprise:
+
+    -   Low probability (small *p*-value) = data would be surprising under the null
+
+    -   High probability (large *p*-value) = data would not be surprising under the null
+    
+- We can either reject or retain the null hypothesis; we **cannot** accept the null
+
+## Neyman-Pearson approach
+
+-   The dominant - but often unnamed - approach to hypothesis testing ([Lakens, 2021](https://doi.org/10.1177/1745691620958012))
+
+- Suitable when the null hypothesis is plausible / meaningful
+
+-   Creates a decision procedure on how to act while controlling error rates: reject the null hypothesis or not? 
+
+    - Type I errors / false positives controlled through alpha (e.g., $\alpha$ = .05)
+
+    - Type II errors / false negatives controlled through beta (e.g., $\beta$ = .20)
+
+## Can we reject the null hypothesis?
+
+![](Figures/Lakens%20traditional.jpeg)
+
+*Figure from [Lakens et al. (2018)](https://doi.org/10.1177/2515245918770963)*
+
+## Function of *p*-values
+
+-   Important to keep in mind what *p*-values can and cannot do ([Wasserstein & Lazar, 2016](https://doi.org/10.1080/00031305.2016.1154108))
+
+    - *p*-values **can** indicate how incompatible the data are with a specified statistical model
+
+    - *p*-values **do not** tell you the probability your alternative hypothesis is true
+
+    - *p*-values **do not** measure the size of an effect or the importance of a result
+    
+    - Scientific conclusions **should not** solely be based on whether a *p*-value passes a given alpha threshold or not 
+
+## Statistically or practically significant?
+
+-   [Bem (2011)](https://pubmed.ncbi.nlm.nih.gov/21280961/) published an infamous series of studies purporting to show precognition (psychic abilities)
+
+    -   100 participants (study 1) saw two hidden windows: one empty and one containing an erotic/non-erotic figure
+
+    -   Participants had to guess which window contained the figure, where 0% would be never correct, 50% a coin flip, and 100% correct every guess
+
+-   What success rate (%) would convince you someone had psychic abilities?
+
+## Bem's results
+
+```{r}
+Bem_data <- read_xlsx("Data/Bem_exp1.xlsx") %>% 
+  clean_names(case = "snake")
+
+#  Erotic hits
+erotic_mean <- mean(Bem_data$erotic_hits_pc)
+erotic_sd <- sd(Bem_data$erotic_hits_pc)
+
+# Non-erotic hits
+nonerotic_mean <- mean(Bem_data$control_hits_pc)
+nonerotic_sd <- sd(Bem_data$control_hits_pc)
+
+# Boundaries
+mu <- 50
+n <- nrow(Bem_data)
+
+# User boundaries
+lower_bound <- 88
+upper_bound <- 100
+
+# As difference from mu for TOST
+lower_diff <- lower_bound - mu
+upper_diff <- upper_bound - mu
+
+# Erotic eq test
+erotic_eq <- tsum_TOST(m1 = erotic_mean,
+          sd1 = erotic_sd,
+          n1 = n,
+          hypothesis = "EQU",
+          low_eqbound = lower_diff,
+          high_eqbound = upper_diff,
+          mu = mu)
+
+# Non-erotic eq test
+nonerotic_eq <- tsum_TOST(m1 = nonerotic_mean,
+          sd1 = nonerotic_sd,
+          n1 = n,
+          hypothesis = "EQU",
+          low_eqbound = lower_diff,
+          high_eqbound = upper_diff,
+          mu = mu)
+
+# Save data for later
+Bem_eq_dat <-
+  tribble(
+    ~ condition,
+    ~ mean_diff,
+    ~ LL_TOST,
+    ~ UL_TOST,
+    "Erotic",
+    50 + erotic_eq$effsize$estimate[1], # +50 as its MD, but CIs are raw values
+    erotic_eq$effsize$lower.ci[1], # Subset as it saves MD and SMD
+    erotic_eq$effsize$upper.ci[1],
+    "Non-erotic",
+    50 + nonerotic_eq$effsize$estimate[1],
+    nonerotic_eq$effsize$lower.ci[1],
+    nonerotic_eq$effsize$upper.ci[1],
+  )
+
+# Save t-test results
+
+erotic_t <- t.test(x = Bem_data$erotic_hits_pc, mu = 50)
+
+report_erotic_t <- paste0("*t* (", 
+                          erotic_t$parameter, 
+                          ") = ", 
+                          round(erotic_t$statistic, 2), 
+                          ", *p* = ",
+                          round(erotic_t$p.value, 3))
+
+nonerotic_t <- t.test(x = Bem_data$control_hits_pc, mu = 50)
+
+report_nonerotic_t <- paste0("*t* (", 
+                          nonerotic_t$parameter, 
+                          ") = ", 
+                          round(nonerotic_t$statistic, 2), 
+                          ", *p* = ",
+                          round(nonerotic_t$p.value, 3))
+```
+
+-   For non-erotic images, participant's hit rate **was not** significantly higher than chance, `r report_nonerotic_t`
+
+-   However, for erotic images, participant's hit rate **was** significantly higher than chance, `r report_erotic_t`
+
+-   So, maybe we do have evidence for precognition (at least for predicting the future position of erotic images...), but what about the effect size?
+
+------------------------------------------------------------------------
+
+-   Hit rate for erotic images was 53.1% (3.14% above chance); 49.8% for non-erotic images (0.17% below chance)
+
+```{r}
+
+# Create manual TOST plot to demonstrate the mean difference + 90% / 95% CI 
+Bem_eq_dat %>% 
+  ggplot(aes(x = condition, y = mean_diff)) + 
+  geom_point(size = 5, shape = 16) + # Show mean difference with horizontal line 
+  # Create two error bars for 90% and 95% CI - differentiate with thicker 90% line
+  geom_errorbar(aes(ymin = LL_TOST, ymax = UL_TOST), width = 0, linewidth = 2) + 
+  # Demonstrate effect size boundary in raw mean difference units 
+  #geom_hline(yintercept = -8.42, linetype = 2) +
+  #geom_hline(yintercept = 8.42, linetype = 2) +
+  # Reference point at 0 mean difference 
+  geom_hline(yintercept = 50, linetype = 5) +
+  scale_y_continuous(breaks = seq(0, 100, 10),
+                     limits = c(0, 100)) + 
+  xlab("Image Type") + 
+  ylab("Hit Rate (%)") + 
+  theme_classic() + 
+  # flip on it's side to visualise easier 
+  coord_flip() + 
+  labs(caption = "Points/lines show mean and 90% CI")
+
+```
+
+------------------------------------------------------------------------
+
+-   Compared to the level of evidence all of you would want to be convinced, at least `r lower_bound`% and higher...
+
+```{r}
+# Create manual TOST plot to demonstrate the mean difference + 90% / 95% CI 
+Bem_eq_dat %>% 
+  ggplot(aes(x = condition, y = mean_diff)) + 
+  geom_point(size = 5, shape = 16) + # Show mean difference with horizontal line 
+  # Create two error bars for 90% and 95% CI - differentiate with thicker 90% line
+  geom_errorbar(aes(ymin = LL_TOST, ymax = UL_TOST), width = 0, linewidth = 2) + 
+  # Demonstrate effect size boundary in raw mean difference units 
+  geom_hline(yintercept = lower_bound, linetype = 2) +
+  geom_hline(yintercept = upper_bound, linetype = 2) +
+  geom_rect(ymin = lower_bound, ymax = upper_bound, xmin = 0, xmax = 100, alpha = 0.2) + 
+  # Reference point at 0 mean difference 
+  geom_hline(yintercept = 50, linetype = 5) +
+  scale_y_continuous(breaks = seq(0, 100, 10),
+                     limits = c(0, 100)) + 
+  xlab("Image Type") + 
+  ylab("Hit Rate (%)") + 
+  theme_classic() + 
+  # flip on it's side to visualise easier 
+  coord_flip() + 
+  labs(caption = "Points/lines show mean and 90% CI")
+```
+
+## What does Bem help to teach us?
+
+1. The difference between a significant and non-significant result may not represent a meaningful shift (Interaction fallacy; [Gelman & Stern, 2006](https://www.tandfonline.com/doi/abs/10.1198/000313006X152649))
+
+2. Even when a result is statistically significant, the effect size might be entirely meaningless (Meehl's paradox; [Kruschke & Liddell, 2018](http://link.springer.com/10.3758/s13423-017-1272-1))
+
+3. It is important to keep in mind whether the null hypothesis is plausible / meaningful for your study (Crud factor; [Orben & Lakens, 2020](https://journals.sagepub.com/doi/full/10.1177/2515245920917961))
+
+## What if you want to support the null?
+
+-   With these lessons in mind, there are scenarios when supporting the null is a desirable inference:
+    -   Is there no meaningful difference between two competing interventions?
+    
+    -   Does your theory rule out specific effects?
+    
+    -   Is your correlation too small to be meaningful?
+
+-   However, researchers mistakenly conclude null effects via a non-significant *p*-value ([Aczel et al., 2018](https://doi.org/10.1177/2515245918773742), [Edelsbrunner & Thurn, 2020](https://osf.io/j93a2))
+
+## Our project
+
+- *Inferences in Psychology Teaching and Learning: A Review of Statistics Misconceptions* 
+
+- Unfortunately little progress in reviewing 76 articles...
+
+- Our RQ: Can studies in psychology teaching and learning meet their inferential goals?
+
+    - What is the prevalence of misconceptions in interpreting non-significant results in psychology teaching and learning?
+    
+    - How does research in psychology teaching and learning justify their sample sizes?
+
+## Equivalence testing
+
+- No statistical approach can directly support the null hypothesis of exactly 0
+
+- Equivalence testing is one approach and originates from drug development research
+
+- Equivalence testing flips NHST logic and uses two one-sided t-tests to test your effect against two boundaries:
+
+    - Is your effect significantly larger than a lower bound? 
+    
+    - Is your effect significantly smaller than an upper bound? 
+
+## Equivalence testing logic
+    
+![](Figures/Lakens equivalence.jpeg)
+
+*Figure from [Lakens et al. (2018)](https://journals.sagepub.com/doi/10.1177/2515245918770963)*
+
+## Equivalence testing decisions
+    
+![](Figures/Lakens decisions.PNG)
+
+*Figure from [Lakens (2017)](https://doi.org/10.1177/1948550617697177 )*
+
+## Decisions to make
+
+**Alpha**
+
+- Default of .05 (which you can change), which creates a 90% confidence interval since there are two tests
+
+**Equivalence bounds**
+
+- Your smallest effect size of interest as raw or standardised values
+
+**Sample size**
+
+-   Power analysis based on alpha, desired power, and equivalence bounds
+
+## TOSTER R package
+
+-   Flexible R package ([Lakens & Caldwell](https://cran.r-project.org/web/packages/TOSTER/index.html)) that can apply equivalence or interval testing to focal tests:
+
+    - T-tests
+    
+    - Correlations
+    
+    - Meta-analysis
+    
+    - Non-parametric tests
+
+```{r, echo=TRUE, eval=FALSE}
+install.packages("TOSTER")
+```
+
+## Worked example
+
+-   *Technology or Tradition? A Comparison of Students' Statistical Reasoning After Being Taught With R Programming Versus Hand Calculations* ([Ditta & Woodward, 2022](https://psycnet.apa.org/record/2022-75571-001))
+
+-   Compared conceptual understanding of statistics at the end of a 10-week intro course
+
+-   Students completed one of two versions:
+
+    1.  Formula-based approach to statistical tests (n = 57)
+
+    2.  R code approach to statistical tests (n = 60)
+
+---
+
+-   **Research question (RQ)**: Does learning through hand calculations or R code lead to greater conceptual understanding of statistics?
+
+-   **Between-subjects IV**: Formula-based or R code approach course
+
+-   **DV**: Final exam (conceptual understanding questions) score as proportion correct (%)
+
+## What are we working with?
+
+```{r load Ditta data}
+# Load data, clean names, select relevant variables, and remove any missing values
+Ditta_data <- read_csv("Data/Ditta_data.csv") %>% # Rename to what you save their data as
+  clean_names(case = "snake") %>% 
+  select(participant_id, condition, e3total) %>% 
+  drop_na()
+```
+
+```{r data violin boxplot}
+# Set one value for offsetting violin and box plots
+pos <- position_dodge(0.9)
+
+# Take Ditta data and create violin boxplot 
+Ditta_data %>% 
+  ggplot(aes(x = condition, y = e3total, fill = condition)) + 
+  geom_violin(position = pos, alpha = 0.5) +
+  geom_boxplot(width = .2, 
+               fatten = NULL, 
+               position = pos,
+               alpha = 0.5) +
+  stat_summary(fun = "mean", 
+               geom = "point", 
+               position = pos) +
+  stat_summary(fun.data = "mean_se", 
+               geom = "errorbar", 
+               width = .1,
+               position = pos) +
+  scale_y_continuous(limits = c(0, 100), breaks = seq(0, 100, 20)) + 
+  scale_x_discrete(labels = c("Hand Calculations", "R Coding")) + 
+  guides(fill = "none") + # Don't want no legend
+  theme_classic() + 
+  labs(x = "Condition", y = "Time 3 Exam Score (%)", caption = "Plots show density of values, boxplots, and mean ± SE")
+```
+
+## Their main results
+
+-   Their first approach to the analysis was a simple independent samples t-test:
+
+```{r simple ttest, echo=TRUE}
+t.test(e3total ~ condition, 
+       data = Ditta_data)
+```
+
+## Equivalence test for two groups
+
+- The traditional t-test was non-significant, but was there no meaningful difference? 
+
+- We can apply an equivalence test using bounds of ±10% for our smallest effect size of interest
+
+```{r TOST summary stats}
+# For TOST, we need summary statistics for mean, SD, and n per group 
+TOST_data <- Ditta_data %>% 
+  group_by(condition) %>% 
+  summarise(mean_score = mean(e3total),
+            sd_score = sd(e3total),
+            n = n()) %>% 
+  as.data.frame() # TOSTER does not play well with tibbles, so convert to a regular data frame 
+
+# Isolate values for group 1: hand calculations
+m1 <- TOST_data[1, 2]
+sd1 <- TOST_data[1, 3]
+n1 <- TOST_data[1, 4]
+
+# Isolate values for group 2: R
+m2 <- TOST_data[2, 2]
+sd2 <- TOST_data[2, 3]
+n2 <- TOST_data[2, 4]
+
+```
+
+```{r Show TOST code 10, echo=TRUE}
+TOST_10 <- tsum_TOST(m1 = m1, # Group 1: Hand calculations
+          sd1 = sd1, 
+          n1 = n1,
+          m2 = m2, # Group 2: R 
+          sd2 = sd2,
+          n2 = n2, 
+          low_eqbound = -10, # User defined equivalence boundaries
+          high_eqbound = 10, 
+          alpha = .05)
+```
+
+---
+
+- Using bounds of ±10%, we can conclude the effect is statistically equivalent and not significantly different to 0:
+
+```{r Show TOST results 10}
+
+TOST_10
+
+```
+
+---
+
+- We can also get a plot showing the equivalence test for both raw and standardised units:
+
+```{r ten point TOST plot, warning=FALSE, message=FALSE, echo=TRUE}
+# Plot using the equivalence test object
+plot(TOST_10)
+```
+
+## Setting equivalence bounds
+
+**Theory / subject knowledge**
+
+- Maybe our intervention would need to improve performance by at least a grade band (10%)?
+
+**Small telescopes approach**
+
+- Often used in replication studies: The effect size the original study would have 33% power to detect
+
+**Effect size benchmarks**
+
+- In the absence of other information, what effect size distributions are relevant to your topic? 
+
+## Small telescopes
+
+```{r Ditta small tele}
+
+# Calculate effect Ditta and Woodward would have 33% power to detect
+# Round to 2 decimals
+
+small_tele <- round(
+  pwr.t2n.test(n1 = 57, n2 = 60, 
+                           power = .33, 
+                           alternative = "two.sided")$d,
+  2)
+
+```
+
+- Ditta and Woodward had 33% power to detect effects of d = ± `r small_tele`; the effect would not be equivalent and we would need more data
+
+```{r small tele TOST plot}
+# Calculate equivalence test for small telescopes effect of +/- d = 0.28
+TOST_tele <- tsum_TOST(m1 = m1, # Group 1: Hand calculations
+          sd1 = sd1, 
+          n1 = n1,
+          m2 = m2, # Group 2: R 
+          sd2 = sd2,
+          n2 = n2, 
+          low_eqbound = -small_tele, # User defined equivalence boundaries
+          high_eqbound = small_tele, 
+          eqbound_type = "SMD") # Standardised mean difference instead of raw
+
+plot(TOST_tele)
+```
+
+## Effect size benchmarks
+
+- Mean effect size in pre-registered between-subjects studies was *d* = 0.35 ([Schäfer & Schwarz, 2019](https://www.frontiersin.org/articles/10.3389/fpsyg.2019.00813/full?fbclid=IwAR1umcUOaFMcx7V1ZQceZ3uTB-Rq05m8x6Bt7JCpZiVzB4utDpnNxO6CvFk)), which would not be equivalent
+
+```{r benchmark TOST plot}
+# Calculate equivalence test for effects of d = ± 0.345
+TOST_benchmark <- tsum_TOST(m1 = m1, # Group 1: Hand calculations
+          sd1 = sd1, 
+          n1 = n1,
+          m2 = m2, # Group 2: R 
+          sd2 = sd2,
+          n2 = n2, 
+          low_eqbound = -0.345, # User defined equivalence boundaries
+          high_eqbound = 0.345, 
+          eqbound_type = "SMD") # Standardised mean difference instead of raw
+
+plot(TOST_benchmark)
+```
+
+## Summary
+
+- Null hypothesis significance testing and *p*-values are suited to specific roles
+
+- If supporting the null is a desirable inference, you need techniques like equivalence testing
+
+- This allows you to conclude whether effects are statistically equivalent or not 
+
+- Setting equivalence bounds is the hardest decision which you must transparently justify
+
+## Where to go next
+
+-   For practical tutorials, our new [PsyTeachR book](https://bartlettje.github.io/statsresdesign/index.html) includes an appendix walking through equivalence testing in R
+
+- [Lakens (2023)](https://lakens.github.io/statistical_inferences/equivalencetest.html) online chapter on equivalence testing and interval hypotheses
+
+- [Lakens (2017)](https://doi.org/10.1177/1948550617697177) and [Lakens et al. (2018)](https://journals.sagepub.com/doi/10.1177/2515245918770963) tutorial articles on equivalence testing
+
+- [Bartlett et al. (2022)](https://journal.trialanderror.org/pub/attentionalsmoker/release/2#exploratory-analyses-no-meaningful-difference-in-attentional-bias) example of equivalence testing in the wild
+
+## Thank you for listening!
+
+**Any questions?**
+
+Dr James Bartlett
+
+- @JamesEBartlett
+
+- james.bartlett@glasgow.ac.uk
+
+Dr Sarah Charles
+
+- @SarahCharlesNC 
+
+- sarah.charles@ntu.ac.uk
