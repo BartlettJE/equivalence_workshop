@@ -18,23 +18,21 @@ library(readxl)
 library(janitor)
 # Equivalence testing 
 library(TOSTER)
-# Join different plots
-library(patchwork)
 # Power functions
 library(pwr)
 ```
 
 -   Crash course in frequentist statistical inference
 
--   How do researchers often try and test the null? 
+-   How do researchers often try and test the null?
 
 -   Equivalence testing tutorial
 
 -   Target data sets:
 
-    * *Feeling the Future* ([Bem, 2011](https://pubmed.ncbi.nlm.nih.gov/21280961/))
+    -   *Feeling the Future* ([Bem, 2011](https://pubmed.ncbi.nlm.nih.gov/21280961/))
 
-    * *Statistical Reasoning After Being Taught With R Programming Versus Hand Calculations* ([Ditta & Woodward, 2022](https://psycnet.apa.org/record/2022-75571-001))
+    -   *Statistical Reasoning After Being Taught With R Programming Versus Hand Calculations* ([Ditta & Woodward, 2022](https://psycnet.apa.org/record/2022-75571-001))
 
 ## Crash course in frequentist statistics
 
@@ -55,20 +53,20 @@ library(pwr)
     -   Low probability (small *p*-value) = data would be surprising under the null
 
     -   High probability (large *p*-value) = data would not be surprising under the null
-    
-- We can either reject or retain the null hypothesis; we **cannot** accept the null
+
+-   We can either reject or retain the null hypothesis; we **cannot** accept the null
 
 ## Neyman-Pearson approach
 
 -   The dominant - but often unnamed - approach to hypothesis testing ([Lakens, 2021](https://doi.org/10.1177/1745691620958012))
 
-- Suitable when the null hypothesis is plausible / meaningful
+-   Suitable when the null hypothesis is plausible / meaningful
 
--   Creates a decision procedure on how to act while controlling error rates: reject the null hypothesis or not? 
+-   Creates a decision procedure on how to act while controlling error rates: reject the null hypothesis or not?
 
-    - Type I errors / false positives controlled through alpha (e.g., $\alpha$ = .05)
+    -   Type I errors / false positives controlled through alpha (e.g., $\alpha$ = .05)
 
-    - Type II errors / false negatives controlled through beta (e.g., $\beta$ = .20)
+    -   Type II errors / false negatives controlled through beta (e.g., $\beta$ = .20)
 
 ## Can we reject the null hypothesis?
 
@@ -80,13 +78,13 @@ library(pwr)
 
 -   Important to keep in mind what *p*-values can and cannot do ([Wasserstein & Lazar, 2016](https://doi.org/10.1080/00031305.2016.1154108))
 
-    - *p*-values **can** indicate how incompatible the data are with a specified statistical model
+    -   *p*-values **can** indicate how incompatible the data are with a specified statistical model
 
-    - *p*-values **do not** tell you the probability your alternative hypothesis is true
+    -   *p*-values **do not** tell you the probability your alternative hypothesis is true
 
-    - *p*-values **do not** measure the size of an effect or the importance of a result
-    
-    - Scientific conclusions **should not** solely be based on whether a *p*-value passes a given alpha threshold or not 
+    -   *p*-values **do not** measure the size of an effect or the importance of a result
+
+    -   Scientific conclusions **should not** solely be based on whether a *p*-value passes a given alpha threshold or not
 
 ## Statistically or practically significant?
 
@@ -243,68 +241,67 @@ Bem_eq_dat %>%
 
 ## What does Bem help to teach us?
 
-1. The difference between a significant and non-significant result may not represent a meaningful shift (Interaction fallacy; [Gelman & Stern, 2006](https://www.tandfonline.com/doi/abs/10.1198/000313006X152649))
+1.  The difference between a significant and non-significant result may not represent a meaningful shift (Interaction fallacy; [Gelman & Stern, 2006](https://www.tandfonline.com/doi/abs/10.1198/000313006X152649))
 
-2. Even when a result is statistically significant, the effect size might be entirely meaningless (Meehl's paradox; [Kruschke & Liddell, 2018](http://link.springer.com/10.3758/s13423-017-1272-1))
+2.  Even when a result is statistically significant, the effect size might be entirely meaningless (Meehl's paradox; [Kruschke & Liddell, 2018](http://link.springer.com/10.3758/s13423-017-1272-1))
 
-3. It is important to keep in mind whether the null hypothesis is plausible / meaningful for your study (Crud factor; [Orben & Lakens, 2020](https://journals.sagepub.com/doi/full/10.1177/2515245920917961))
+3.  It is important to keep in mind whether the null hypothesis is plausible / meaningful for your study (Crud factor; [Orben & Lakens, 2020](https://journals.sagepub.com/doi/full/10.1177/2515245920917961))
 
 ## What if you want to support the null?
 
 -   With these lessons in mind, there are scenarios when supporting the null is a desirable inference:
     -   Is there no meaningful difference between two competing interventions?
-    
-    -   Does your theory rule out specific effects?
-    
-    -   Is your correlation too small to be meaningful?
 
+    -   Does your theory rule out specific effects?
+
+    -   Is your correlation too small to be meaningful?
 -   However, researchers mistakenly conclude null effects via a non-significant *p*-value ([Aczel et al., 2018](https://doi.org/10.1177/2515245918773742), [Edelsbrunner & Thurn, 2020](https://osf.io/j93a2))
 
 ## Our project
 
-- *Inferences in Psychology Teaching and Learning: A Review of Statistics Misconceptions* 
+-   *Inferences in Psychology Teaching and Learning: A Review of Statistics Misconceptions*
 
-- Unfortunately little progress in reviewing 76 articles...
+-   Unfortunately little progress in reviewing 76 articles...
 
-- Our RQ: Can studies in psychology teaching and learning meet their inferential goals?
+-   Our RQ: Can studies in psychology teaching and learning meet their inferential goals?
 
-    - What is the prevalence of misconceptions in interpreting non-significant results in psychology teaching and learning?
-    
-    - How does research in psychology teaching and learning justify their sample sizes?
+    -   What is the prevalence of misconceptions in interpreting non-significant results in psychology teaching and learning?
+
+    -   How does research in psychology teaching and learning justify their sample sizes?
 
 ## Equivalence testing
 
-- No statistical approach can directly support the null hypothesis of exactly 0
+-   No statistical approach can directly support the null hypothesis of exactly 0
 
-- Equivalence testing is one approach and originates from drug development research
+-   Equivalence testing is one approach and originates from drug development research
 
-- Equivalence testing flips NHST logic and uses two one-sided t-tests to test your effect against two boundaries:
+-   Equivalence testing flips NHST logic and uses two one-sided t-tests to test your effect against two boundaries:
 
-    - Is your effect significantly larger than a lower bound? 
-    
-    - Is your effect significantly smaller than an upper bound? 
+    -   Is your effect significantly larger than a lower bound?
+
+    -   Is your effect significantly smaller than an upper bound?
 
 ## Equivalence testing logic
-    
-![](Figures/Lakens equivalence.jpeg)
+
+![](Figures/Lakens%20equivalence.jpeg)
 
 *Figure from [Lakens et al. (2018)](https://journals.sagepub.com/doi/10.1177/2515245918770963)*
 
 ## Equivalence testing decisions
-    
-![](Figures/Lakens decisions.PNG)
 
-*Figure from [Lakens (2017)](https://doi.org/10.1177/1948550617697177 )*
+![](Figures/Lakens%20decisions.PNG)
+
+*Figure from [Lakens (2017)](https://doi.org/10.1177/1948550617697177)*
 
 ## Decisions to make
 
 **Alpha**
 
-- Default of .05 (which you can change), which creates a 90% confidence interval since there are two tests
+-   Default of .05 (which you can change), which creates a 90% confidence interval since there are two tests
 
 **Equivalence bounds**
 
-- Your smallest effect size of interest as raw or standardised values
+-   Your smallest effect size of interest as raw or standardised values
 
 **Sample size**
 
@@ -314,13 +311,13 @@ Bem_eq_dat %>%
 
 -   Flexible R package ([Lakens & Caldwell](https://cran.r-project.org/web/packages/TOSTER/index.html)) that can apply equivalence or interval testing to focal tests:
 
-    - T-tests
-    
-    - Correlations
-    
-    - Meta-analysis
-    
-    - Non-parametric tests
+    -   T-tests
+
+    -   Correlations
+
+    -   Meta-analysis
+
+    -   Non-parametric tests
 
 ```{r, echo=TRUE, eval=FALSE}
 install.packages("TOSTER")
@@ -338,7 +335,7 @@ install.packages("TOSTER")
 
     2.  R code approach to statistical tests (n = 60)
 
----
+------------------------------------------------------------------------
 
 -   **Research question (RQ)**: Does learning through hand calculations or R code lead to greater conceptual understanding of statistics?
 
@@ -393,9 +390,9 @@ t.test(e3total ~ condition,
 
 ## Equivalence test for two groups
 
-- The traditional t-test was non-significant, but was there no meaningful difference? 
+-   The traditional t-test was non-significant, but was there no meaningful difference?
 
-- We can apply an equivalence test using bounds of ±10% for our smallest effect size of interest
+-   We can apply an equivalence test using bounds of ±10% for our smallest effect size of interest
 
 ```{r TOST summary stats}
 # For TOST, we need summary statistics for mean, SD, and n per group 
@@ -430,9 +427,9 @@ TOST_10 <- tsum_TOST(m1 = m1, # Group 1: Hand calculations
           alpha = .05)
 ```
 
----
+------------------------------------------------------------------------
 
-- Using bounds of ±10%, we can conclude the effect is statistically equivalent and not significantly different to 0:
+-   Using bounds of ±10%, we can conclude the effect is statistically equivalent and not significantly different to 0:
 
 ```{r Show TOST results 10}
 
@@ -440,9 +437,9 @@ TOST_10
 
 ```
 
----
+------------------------------------------------------------------------
 
-- We can also get a plot showing the equivalence test for both raw and standardised units:
+-   We can also get a plot showing the equivalence test for both raw and standardised units:
 
 ```{r ten point TOST plot, warning=FALSE, message=FALSE, echo=TRUE}
 # Plot using the equivalence test object
@@ -453,15 +450,15 @@ plot(TOST_10)
 
 **Theory / subject knowledge**
 
-- Maybe our intervention would need to improve performance by at least a grade band (10%)?
+-   Maybe our intervention would need to improve performance by at least a grade band (10%)?
 
 **Small telescopes approach**
 
-- Often used in replication studies: The effect size the original study would have 33% power to detect
+-   Often used in replication studies: The effect size the original study would have 33% power to detect
 
 **Effect size benchmarks**
 
-- In the absence of other information, what effect size distributions are relevant to your topic? 
+-   In the absence of other information, what effect size distributions are relevant to your topic?
 
 ## Small telescopes
 
@@ -478,7 +475,7 @@ small_tele <- round(
 
 ```
 
-- Ditta and Woodward had 33% power to detect effects of d = ± `r small_tele`; the effect would not be equivalent and we would need more data
+-   Ditta and Woodward had 33% power to detect effects of d = ± `r small_tele`; the effect would not be equivalent and we would need more data
 
 ```{r small tele TOST plot}
 # Calculate equivalence test for small telescopes effect of +/- d = 0.28
@@ -497,7 +494,7 @@ plot(TOST_tele)
 
 ## Effect size benchmarks
 
-- Mean effect size in pre-registered between-subjects studies was *d* = 0.35 ([Schäfer & Schwarz, 2019](https://www.frontiersin.org/articles/10.3389/fpsyg.2019.00813/full?fbclid=IwAR1umcUOaFMcx7V1ZQceZ3uTB-Rq05m8x6Bt7JCpZiVzB4utDpnNxO6CvFk)), which would not be equivalent
+-   Mean effect size in pre-registered between-subjects studies was *d* = 0.35 ([Schäfer & Schwarz, 2019](https://www.frontiersin.org/articles/10.3389/fpsyg.2019.00813/full?fbclid=IwAR1umcUOaFMcx7V1ZQceZ3uTB-Rq05m8x6Bt7JCpZiVzB4utDpnNxO6CvFk)), which would not be equivalent
 
 ```{r benchmark TOST plot}
 # Calculate equivalence test for effects of d = ± 0.345
@@ -516,23 +513,25 @@ plot(TOST_benchmark)
 
 ## Summary
 
-- Null hypothesis significance testing and *p*-values are suited to specific roles
+-   Null hypothesis significance testing and *p*-values are suited to specific roles
 
-- If supporting the null is a desirable inference, you need techniques like equivalence testing
+-   If supporting the null is a desirable inference, you need techniques like equivalence testing
 
-- This allows you to conclude whether effects are statistically equivalent or not 
+-   This allows you to conclude whether effects are statistically equivalent or not
 
-- Setting equivalence bounds is the hardest decision which you must transparently justify
+-   Setting equivalence bounds is the hardest decision which you must transparently justify
 
 ## Where to go next
 
 -   For practical tutorials, our new [PsyTeachR book](https://bartlettje.github.io/statsresdesign/index.html) includes an appendix walking through equivalence testing in R
 
-- [Lakens (2023)](https://lakens.github.io/statistical_inferences/equivalencetest.html) online chapter on equivalence testing and interval hypotheses
+-   [Lakens (2023)](https://lakens.github.io/statistical_inferences/equivalencetest.html) online chapter on equivalence testing and interval hypotheses
 
-- [Lakens (2017)](https://doi.org/10.1177/1948550617697177) and [Lakens et al. (2018)](https://journals.sagepub.com/doi/10.1177/2515245918770963) tutorial articles on equivalence testing
+-   [Lakens (2017)](https://doi.org/10.1177/1948550617697177) and [Lakens et al. (2018)](https://journals.sagepub.com/doi/10.1177/2515245918770963) tutorial articles on equivalence testing
 
-- [Bartlett et al. (2022)](https://journal.trialanderror.org/pub/attentionalsmoker/release/2#exploratory-analyses-no-meaningful-difference-in-attentional-bias) example of equivalence testing in the wild
+-   [Bartlett et al. (2022)](https://journal.trialanderror.org/pub/attentionalsmoker/release/2#exploratory-analyses-no-meaningful-difference-in-attentional-bias) example of equivalence testing in the wild
+
+- [Charles et al. (2022)](https://link.springer.com/article/10.1007/s12144-022-04062-2#Sec5) slightly more advanced equivalence testing in the wild
 
 ## Thank you for listening!
 
@@ -540,12 +539,12 @@ plot(TOST_benchmark)
 
 Dr James Bartlett
 
-- @JamesEBartlett
+-   @JamesEBartlett
 
-- james.bartlett@glasgow.ac.uk
+-   james.bartlett\@glasgow.ac.uk
 
 Dr Sarah Charles
 
-- @SarahCharlesNC 
+-   @SarahCharlesNC
 
-- sarah.charles@ntu.ac.uk
+-   sarah.charles\@ntu.ac.uk
