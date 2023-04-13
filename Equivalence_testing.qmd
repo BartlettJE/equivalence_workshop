@@ -273,9 +273,9 @@ Bem_eq_dat %>%
 
 -   No statistical approach can directly support the null hypothesis of exactly 0
 
--   Equivalence testing is one approach and originates from drug development research
+-   Equivalence testing originates from drug development research
 
--   Equivalence testing flips NHST logic and uses two one-sided t-tests to test your effect against two boundaries:
+-   The technique flips NHST logic and uses two one-sided t-tests to test your effect against two boundaries:
 
     -   Is your effect significantly larger than a lower bound?
 
@@ -531,7 +531,7 @@ plot(TOST_benchmark)
 
 -   [Bartlett et al. (2022)](https://journal.trialanderror.org/pub/attentionalsmoker/release/2#exploratory-analyses-no-meaningful-difference-in-attentional-bias) example of equivalence testing in the wild
 
-- [Charles et al. (2022)](https://link.springer.com/article/10.1007/s12144-022-04062-2#Sec5) slightly more advanced equivalence testing in the wild
+-   [Charles et al. (2022)](https://link.springer.com/article/10.1007/s12144-022-04062-2#Sec5) slightly more advanced equivalence testing in the wild
 
 ## Thank you for listening!
 
